@@ -22,6 +22,8 @@ __all__ = ['fmin', 'fmin_powell','fmin_bfgs', 'fmin_ncg', 'fmin_cg',
 
 __docformat__ = "restructuredtext en"
 
+import warnings
+
 import numpy
 from numpy import atleast_1d, eye, mgrid, argmin, zeros, shape, \
      squeeze, vectorize, asarray, absolute, sqrt, Inf, asfarray, isinf
@@ -55,6 +57,10 @@ pymin = __builtin__.min
 pymax = __builtin__.max
 __version__="0.7"
 _epsilon = sqrt(numpy.finfo(float).eps)
+
+class OptimizationWarning(UserWarning) :
+    """Issued by chebfit when the design matrix is rank deficient."""
+    pass
 
 def vecnorm(x, ord=2):
     if ord == Inf:
@@ -341,11 +347,15 @@ def fmin(func, x0, args=(), xtol=1e-4, ftol=1e-4, maxiter=None, maxfun=None,
 
     if fcalls[0] >= maxfun:
         warnflag = 1
+        warnings.warn(OptimizationWarning, "Maximum number of function "\
+                  "evaluations has been exceeded.")
         if disp:
             print "Warning: Maximum number of function evaluations has "\
                   "been exceeded."
     elif iterations >= maxiter:
         warnflag = 2
+        warnings.warn(OptimizationWarning, "Maximum number of iterations "\
+                  "has been exceeded.")
         if disp:
             print "Warning: Maximum number of iterations has been exceeded"
     else:
@@ -534,6 +544,13 @@ def fmin_bfgs(f, x0, fprime=None, args=(), gtol=1e-5, norm=Inf,
             print "         Function evaluations: %d" % func_calls[0]
             print "         Gradient evaluations: %d" % grad_calls[0]
 
+        warnstrg = ["         Current function value: %f" % fval,
+                    "         Iterations: %d" % k,
+                    "         Function evaluations: %d" % func_calls[0],
+                    "         Gradient evaluations: %d" % grad_calls[0]]
+        warnings.warn(OptimizationWarning, "Desired error not necessarily " \
+                  "achieved due to precision loss.\n" + '\n'.join(warnstrg)
+
     elif k >= maxiter:
         warnflag = 1
         if disp:
@@ -542,6 +559,13 @@ def fmin_bfgs(f, x0, fprime=None, args=(), gtol=1e-5, norm=Inf,
             print "         Iterations: %d" % k
             print "         Function evaluations: %d" % func_calls[0]
             print "         Gradient evaluations: %d" % grad_calls[0]
+
+        warnstrg = ["         Current function value: %f" % fval,
+                    "         Iterations: %d" % k,
+                    "         Function evaluations: %d" % func_calls[0],
+                    "         Gradient evaluations: %d" % grad_calls[0]]
+        warnings.warn(OptimizationWarning, "Maximum number of iterations has been " \
+                  "exceeded \n" + '\n'.join(warnstrg)
     else:
         if disp:
             print "Optimization terminated successfully."
