@@ -47,7 +47,8 @@ distcont = [
     ['exponpow', (2.697119160358469,)],
     ['exponweib', (2.8923945291034436, 1.9505288745913174)],
     ['f', (29, 18)],
-    ['fatiguelife', (29,)],   #correction numargs = 1
+    #['fatiguelife', (29,)],   #correction numargs = 1, #29: variance is huge
+    ['fatiguelife', (0.75,)],
     ['fisk', (3.0857548622253179,)],
     ['foldcauchy', (4.7164673455831894,)],
     ['foldnorm', (1.9521253373555869,)],
@@ -70,7 +71,8 @@ distcont = [
     ['halflogistic', ()],
     ['halfnorm', ()],
     ['hypsecant', ()],
-    ['invgamma', (2.0668996136993067,)],
+    #['invgamma', (2.0668996136993067,)], #this fails the stats/sample variance test
+    ['invgamma', (8.,)],
     ['invgauss', (0.14546264555347513,)],
     ['invweibull', (10.58,)], # sample mean test fails at(0.58847112119264788,)]
     ['johnsonsb', (4.3172675099141058, 3.1837781130785063)],
@@ -113,6 +115,7 @@ distcont = [
     ['truncexpon', (4.6907725456810478,)],
     ['truncnorm', (-1.0978730080013919, 2.7306754109031979)],
     ['tukeylambda', (3.1321477856738267,)],
+    ['tukeylambda', (0.14,)],
     ['uniform', ()],
     ['vonmises', (3.9939042581071398,)],
     ['wald', ()],
@@ -284,8 +287,9 @@ def check_sample_var(sv,n, popvar):
 two-sided chisquare test for sample variance equal to hypothesized variance
     '''
     df = n-1
-    chi2 = (n-1)*popvar/float(popvar)
-    pval = stats.chisqprob(chi2,df)*2
+    chi2 = (n-1)*sv/float(popvar)
+    #pval = stats.chisqprob(chi2,df)*2
+    pval = min(stats.chi2.cdf(chi2,df), stats.chi2.sf(chi2,df)) #need two-sided
     npt.assert_(pval > 0.01, 'var fail, t,pval = %f, %f, v,sv=%f,%f' % (chi2,pval,popvar,sv))
 
 
