@@ -2010,6 +2010,7 @@ class TestMannWhitneyU(TestCase):
          19.0366413269742,18.1135025515417,19.2201873866958,17.8344909022841,
          18.2894380745856,18.6661374133922,19.9688601693252,16.0672254617636,
          19.00596360572,19.201561539032,19.0487501090183,19.0847908674356]
+    significant = 14
 
     def test_mannwhitneyu_less(self):
         u1, p1 = stats.mannwhitneyu(self.X, self.Y, alternative="less")
@@ -2017,7 +2018,8 @@ class TestMannWhitneyU(TestCase):
         assert_equal(p1, p2)
         assert_equal(u1, 498)
         assert_equal(u2, 102)
-        assert_approx_equal(p1, 0.999957683256589)
+        assert_approx_equal(p1, 0.999957683256589,
+                            significant=self.significant)
 
     def test_mannwhitneyu_greater(self):
         u1, p1 = stats.mannwhitneyu(self.X, self.Y, alternative="greater")
@@ -2025,7 +2027,8 @@ class TestMannWhitneyU(TestCase):
         assert_equal(p1, p2)
         assert_equal(u1, 498)
         assert_equal(u2, 102)
-        assert_approx_equal(p1, 4.5941632666275e-05)
+        assert_approx_equal(p1, 4.5941632666275e-05,
+                            significant=self.significant)
 
     def test_mannwhitneyu_two_sided(self):
         u1,p1 = stats.mannwhitneyu(self.X, self.Y, alternative="two-sided")
@@ -2033,7 +2036,8 @@ class TestMannWhitneyU(TestCase):
         assert_equal(p1, p2)
         assert_equal(u1, 498)
         assert_equal(u2, 102)
-        assert_approx_equal(p1, 9.188326533255e-05)
+        assert_approx_equal(p1, 9.188326533255e-05,
+                            significant=self.significant)
 
     def test_mannwhitneyu_no_correct_less(self):
         u1, p1 = stats.mannwhitneyu(self.X, self.Y, False, "less")
@@ -2041,7 +2045,8 @@ class TestMannWhitneyU(TestCase):
         assert_equal(p1, p2)
         assert_equal(u1, 498)
         assert_equal(u2, 102)
-        assert_approx_equal(p1, 0.999955905990004)
+        assert_approx_equal(p1, 0.999955905990004,
+                            significant=self.significant)
 
     def test_mannwhitneyu_no_correct_greater(self):
         u1, p1 = stats.mannwhitneyu(self.X, self.Y, False, "greater")
@@ -2049,7 +2054,8 @@ class TestMannWhitneyU(TestCase):
         assert_equal(p1, p2)
         assert_equal(u1, 498)
         assert_equal(u2, 102)
-        assert_approx_equal(p1, 4.40940099958089e-05)
+        assert_approx_equal(p1, 4.40940099958089e-05,
+                            significant=self.significant)
 
     def test_mannwhitneyu_no_correct_two_sided(self):
         u1, p1 = stats.mannwhitneyu(self.X, self.Y, False, alternative="two-sided")
@@ -2057,9 +2063,10 @@ class TestMannWhitneyU(TestCase):
         assert_equal(p1, p2)
         assert_equal(u1, 498)
         assert_equal(u2, 102)
-        assert_approx_equal(p1, 8.81880199916178e-05)
+        assert_approx_equal(p1, 8.81880199916178e-05,
+                            significant=self.significant)
 
-    def test_mannwhitneyu_ones():
+    def test_mannwhitneyu_ones(self):
         x = np.array([ 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,
             1., 1., 1., 1., 1., 1., 1., 1., 2., 1., 1., 1., 1., 1., 1., 1.,
             1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,

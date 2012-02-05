@@ -3381,7 +3381,7 @@ def ks_2samp(data1, data2):
     return d, prob
 
 
-def mannwhitneyu(x, y, use_continuity=True):
+def mannwhitneyu(x, y, use_continuity=True, alternative='two-sided'):
     """
     Computes the Mann-Whitney rank test on samples x and y.
 
@@ -3412,8 +3412,8 @@ def mannwhitneyu(x, y, use_continuity=True):
     p-value multiply the returned p-value by 2.
 
     """
-    x = asarray(x)
-    y = asarray(y)
+    x = np.asarray(x)
+    y = np.asarray(y)
     n1 = len(x)
     n2 = len(y)
     ranked = rankdata(np.concatenate((x,y)))
@@ -3421,20 +3421,29 @@ def mannwhitneyu(x, y, use_continuity=True):
     #ranky = ranked[n1:]        # the rest are y-ranks
     u1 = n1*n2 + (n1*(n1+1))/2.0 - np.sum(rankx,axis=0)  # calc U for x
     u2 = n1*n2 - u1                            # remainder is U for y
-    bigu = max(u1,u2)
-    smallu = min(u1,u2)
-    #T = np.sqrt(tiecorrect(ranked))  # correction factor for tied scores
     T = tiecorrect(ranked)
     if T == 0:
         raise ValueError('All numbers are identical in amannwhitneyu')
     sd = np.sqrt(T*n1*n2*(n1+n2+1)/12.0)
 
-    if use_continuity:
-        # normal approximation for prob calc with continuity correction
-        z = abs((bigu-0.5-n1*n2/2.0) / sd)
+    fact2 = 1
+
+    meanrank = n1*n2/2.0 + 0.5 * use_continuity
+    if alternative in ['less', 'smaller']:
+        z = u1 - meanrank
+    elif alternative in ['greater', 'larger']:
+        z = u2 - meanrank
+    elif alternative in ['two-sided']:
+        bigu = max(u1,u2)
+        z = np.abs(bigu - meanrank)
+        fact2 = 2.
     else:
-        z = abs((bigu-n1*n2/2.0) / sd)  # normal approximation for prob calc
-    return smallu, distributions.norm.sf(z)  #(1.0 - zprob(z))
+        raise ValueError('alternative should be "smaller", "larger" or '
+                         '"tow-sided"')
+
+    z = z / sd
+
+    return u2, distributions.norm.sf(z) * fact2
 
 
 def tiecorrect(rankvals):
@@ -3552,20 +3561,20 @@ def kruskal(*args):
     if na < 2:
         raise ValueError("Need at least two groups in stats.kruskal()")
     n = np.asarray(map(len, args))
-    
+
     alldata = np.concatenate(args)
 
     ranked = rankdata(alldata)  # Rank the data
     T = tiecorrect(ranked)      # Correct for ties
     if T == 0:
         raise ValueError('All numbers are identical in kruskal')
-    
+
     # Compute sum^2/n for each group and sum
     j = np.insert(np.cumsum(n), 0, 0)
     ssbn = 0
     for i in range(na):
-        ssbn += square_of_sums(ranked[j[i]:j[i+1]]) / float(n[i]) 
-        
+        ssbn += square_of_sums(ranked[j[i]:j[i+1]]) / float(n[i])
+
     totaln = np.sum(n)
     h = 12.0 / (totaln * (totaln + 1)) * ssbn - 3 * (totaln + 1)
     df = na - 1
