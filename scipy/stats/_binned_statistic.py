@@ -313,7 +313,7 @@ def binned_statistic_dd(sample, values, statistic='mean',
     xy += Ncount[ni[-1]]
 
     result = np.empty(nbin.prod(), float)
-
+    old = np.seterr(invalid='ignore')
     if statistic == 'mean':
         result.fill(np.nan)
         flatcount = np.bincount(xy, None)
@@ -343,6 +343,8 @@ def binned_statistic_dd(sample, values, statistic='mean',
         result.fill(null)
         for i in np.unique(xy):
             result[i] = statistic(values[xy == i])
+
+    np.seterr(**old)
 
     # Shape into a proper matrix
     result = result.reshape(np.sort(nbin))
